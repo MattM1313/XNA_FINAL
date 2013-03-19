@@ -84,7 +84,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\..\SpriteClasses\SpriteClasses.csproj">
+    <ProjectReference Include="..\..\..\..\..\..\Lab12\SpriteClasses\SpriteClasses.csproj">
       <Project>{3E2F8FAB-2EDC-44CE-B28E-D25F2454976A}</Project>
       <Name>SpriteClasses</Name>
     </ProjectReference>

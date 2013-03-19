@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinalContent", "Final\Final
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Particles", "Particles\Particles.csproj", "{688CDE3C-F339-4540-A091-83F436D90510}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpriteClasses", "..\..\..\SpriteClasses\SpriteClasses.csproj", "{3E2F8FAB-2EDC-44CE-B28E-D25F2454976A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpriteClasses", "..\..\..\..\Lab12\SpriteClasses\SpriteClasses.csproj", "{3E2F8FAB-2EDC-44CE-B28E-D25F2454976A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

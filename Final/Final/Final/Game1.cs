@@ -29,7 +29,8 @@ namespace Final
         {
             mainMenu,
             options,
-            playing
+            playing,
+            Shop
         }
         GameState currentGameState = GameState.mainMenu;
         enum laserState
@@ -41,17 +42,20 @@ namespace Final
         laserState LaserState = laserState.One;
 
 
-        mButton btnPlay, btnOptions;
+        mButton btnPlay, btnOptions, btnShop;
 
 
 
         MultiBackground b;
-        Sprite player, bg;
+        Sprite player, bg, gui;
         Texture2D playerTex, back, laser1;
         Texture2D laser01;
         Texture2D cursor;
         Vector2 cursorPos;
         List<Sprite> laserList = new List<Sprite>();
+
+        const float FIRE_DELAY = 150f;
+        float fireDelay = FIRE_DELAY;
         
 
         float angle;
@@ -79,8 +83,8 @@ namespace Final
             //back = Content.Load<Texture2D>("Background");
             back = Content.Load<Texture2D>("bg");
             player = new Sprite(playerTex, new Vector2(graphics.PreferredBackBufferWidth / 2, graphics.PreferredBackBufferHeight / 2), new Vector2(5, 5),
-                true, 0, 1f, SpriteEffects.None);
-            bg  = new Sprite(back, new Vector2(0, 0), new Vector2(0, 0), true, 0, 1f, SpriteEffects.None);
+                true, 0, 1f, SpriteEffects.None, null, 0);
+            bg  = new Sprite(back, new Vector2(0, 0), new Vector2(0, 0), true, 0, 1f, SpriteEffects.None, null, 0);
             base.Initialize();
 
          
@@ -107,7 +111,8 @@ namespace Final
             textures.Add(Content.Load<Texture2D>("starSmall"));
             particleEngine = new ParticleEngine(textures, new Vector2(400, 240));
 
-
+            gui = new Sprite(Content.Load<Texture2D>("shopGUI"), new Vector2(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2), Vector2.Zero, true,
+                0f, 1f, SpriteEffects.None, null, 0);
 
 
             laser1 = Content.Load<Texture2D>(@"Ship_sprites/lasers/laser1");
@@ -117,6 +122,8 @@ namespace Final
             btnPlay.setPosition(new Vector2(graphics.PreferredBackBufferWidth/2 -125, 300));
             btnOptions = new mButton(Content.Load<Texture2D>("options_button"), graphics.GraphicsDevice);
             btnOptions.setPosition(new Vector2(graphics.PreferredBackBufferWidth/2 -225, 400));
+            btnShop = new mButton(Content.Load<Texture2D>("Shop_Button"), graphics.GraphicsDevice);
+            btnShop.setPosition(new Vector2(graphics.PreferredBackBufferWidth - 250, 0));
 
 
             cursor = Content.Load<Texture2D>("cursor");
@@ -148,8 +155,24 @@ namespace Final
             MouseState mouse = Mouse.GetState();
             cursorPos = new Vector2(mouse.X -25, mouse.Y -25);
 
+
+            float elapsed = (float)gameTime.ElapsedGameTime.TotalMilliseconds;
+
+            fireDelay -= elapsed;
+
+
             switch (currentGameState)
             {
+                
+                
+                case GameState.Shop:
+
+                    b.Update(gameTime);
+                    particleEngine.Update();
+
+
+                    break;
+
                 case GameState.mainMenu:
                     btnPlay.Update(mouse);
                     if (btnPlay.isClicked == true) currentGameState = GameState.playing;
@@ -157,8 +180,11 @@ namespace Final
                     btnOptions.UpdateLong(mouse);
                     if (btnOptions.isClicked == true) currentGameState = GameState.options;
 
+                 
+
                     particleEngine.EmitterLocation = new Vector2(graphics.GraphicsDevice.Viewport.Width / 2, graphics.GraphicsDevice.Viewport.Height / 2);
                     particleEngine.Update();
+                    
                     
                     b.Update(gameTime);
 
@@ -170,7 +196,8 @@ namespace Final
            
                     UpdateInput();
                     player.Update(gameTime, GraphicsDevice);
-               
+                    btnShop.Update(mouse);
+                    if (btnShop.isClicked == true) currentGameState = GameState.Shop;
 
 
                      for (int i = 0; i < laserList.Count; i++)
@@ -215,6 +242,22 @@ namespace Final
             switch (currentGameState)
             {
                 
+                case GameState.Shop:
+
+                    spriteBatch.Begin();
+
+                    b.Draw();
+                    particleEngine.Draw(spriteBatch);
+                    gui.Draw(gameTime, spriteBatch);
+                    spriteBatch.Draw(cursor, cursorPos, Color.White);
+
+
+                    spriteBatch.End();
+
+                    break;
+                
+                
+                
                 case GameState.mainMenu:
                     
                     
@@ -227,6 +270,7 @@ namespace Final
                     
                     btnPlay.Draw(spriteBatch);
                     btnOptions.Draw(spriteBatch);
+                  
                     spriteBatch.Draw(cursor, cursorPos, Color.White);
                     
                  
@@ -265,7 +309,7 @@ namespace Final
                     }
 
                     }
-
+                    btnShop.Draw(spriteBatch);
                     spriteBatch.End();
                     break;
 
@@ -388,35 +432,51 @@ namespace Final
 
             }
 
-             if (keyState.IsKeyDown(Keys.Space))
+             if (keyState.IsKeyDown(Keys.Q))
+             {
+                 LaserState = laserState.One;
+             }
+             if (keyState.IsKeyDown(Keys.W))
              {
                  LaserState = laserState.Two;
+             }
+             if (keyState.IsKeyDown(Keys.E))
+             {
+                 LaserState = laserState.Three;
              }
             
 
 
-            if (true){
-                switch(LaserState)
+            if (currMouseState.LeftButton == ButtonState.Pressed){
+                if (fireDelay <= 0f)
                 {
-                    case laserState.One:
-                        Sprite laserShot = new Sprite(laser1, new Vector2(player.Position.X - laser1.Bounds.X / 2, player.Position.Y - laser1.Bounds.Y / 2),
-                            new Vector2((float)Math.Cos((angle)), (float)Math.Sin((angle))) * 800f, true, 0, 1f, SpriteEffects.None);
-                laserShot.Rotation = angle + (float)45.5;
-                
-            laserList.Add(laserShot);
 
-            break;
+                    switch (LaserState)
+                    {
 
 
-                    case laserState.Two:
-            Sprite laserShot2 = new Sprite(laser01, new Vector2(player.Position.X - laser01.Bounds.X / 2, player.Position.Y - laser01.Bounds.Y / 2),
-                        new Vector2((float)Math.Cos((angle)), (float)Math.Sin((angle))) * 800f, true, 0, 1f, SpriteEffects.None);
-            laserShot2.Rotation = angle + (float)45.5;
+                        case laserState.One:
+                            Sprite laserShot = new Sprite(laser1, new Vector2(player.Position.X - laser1.Bounds.X / 2, player.Position.Y - laser1.Bounds.Y / 2),
+                                new Vector2((float)Math.Cos((angle)), (float)Math.Sin((angle))) * 600f, true, 0, 1f, SpriteEffects.None, null, 0);
+                            laserShot.Rotation = angle + (float)45.5;
 
-            laserList.Add(laserShot2);
+                            laserList.Add(laserShot);
 
-            break;
-            }
+                            break;
+
+
+                        case laserState.Two:
+                            Sprite laserShot2 = new Sprite(laser01, new Vector2(player.Position.X - laser01.Bounds.X / 2, player.Position.Y - laser01.Bounds.Y / 2),
+                                        new Vector2((float)Math.Cos((angle)), (float)Math.Sin((angle))) * 600f, true, 0, 1f, SpriteEffects.None, null, 0);
+                            laserShot2.Rotation = angle + (float)45.5;
+
+                            laserList.Add(laserShot2);
+
+                            break;
+                    }
+                    fireDelay = FIRE_DELAY;
+                }
+
         }
             prevMouseState = currMouseState;
         }

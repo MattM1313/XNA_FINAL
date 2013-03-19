@@ -42,9 +42,9 @@ namespace Final
             if (mouseRectangle.Intersects(rectangle))
             {
                 System.Diagnostics.Debug.WriteLine(color.A);
-                if (color.B == 255) down = false;
-                if (color.B == 0) down = true;
-                if (down) color.B += 5; else color.B -= 5;
+                if (color.R == 255) down = false;
+                if (color.R == 0) down = true;
+                if (down) color.R += 5; else color.R -= 5;
                 
                 if (mouse.LeftButton == ButtonState.Pressed) isClicked = true;
 
@@ -52,14 +52,14 @@ namespace Final
             
 
             }
-            else if (color.B < 0)
+            else if (color.R < 0)
             {
-                color.B += 5;
+                color.R += 5;
                 isClicked = false;
             }
-            if(color.B < 255 && rectangle.Contains(mouseRectangle) == false)
+            if(color.R < 255 && rectangle.Contains(mouseRectangle) == false)
             {
-                color.B += 5;
+                color.R += 5;
             }
             
            
@@ -78,9 +78,9 @@ namespace Final
             if (mouseRectangle.Intersects(rectangle))
             {
                 System.Diagnostics.Debug.WriteLine(color.A);
-                if (color.B == 255) down = false;
-                if (color.B == 0) down = true;
-                if (down) color.B += 5; else color.B -= 5;
+                if (color.R == 255) down = false;
+                if (color.R == 0) down = true;
+                if (down) color.R += 5; else color.R -= 5;
 
                 if (mouse.LeftButton == ButtonState.Pressed) isClicked = true;
 
@@ -88,14 +88,14 @@ namespace Final
 
 
             }
-            else if (color.B < 0)
+            else if (color.R < 0)
             {
-                color.B += 5;
+                color.R += 5;
                 isClicked = false;
             }
-            if (color.B < 255 && rectangle.Contains(mouseRectangle) == false)
+            if (color.R < 255 && rectangle.Contains(mouseRectangle) == false)
             {
-                color.B += 5;
+                color.R += 5;
             }
 
 
