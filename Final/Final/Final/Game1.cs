@@ -22,8 +22,13 @@ namespace Final
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         MouseState prevMouseState;
+        KeyboardState prevKeyState;
 
         ParticleEngine particleEngine;
+
+
+        ShopIcon laserIcon1, laserIcon2, laserIcon3, laserIcon4, laserIcon1G, laserIcon2G, laserIcon3G, laserIcon4G;
+
 
         enum GameState
         {
@@ -45,7 +50,7 @@ namespace Final
         mButton btnPlay, btnOptions, btnShop;
 
 
-
+      
         MultiBackground b;
         Sprite player, bg, gui;
         Texture2D playerTex, back, laser1;
@@ -115,6 +120,8 @@ namespace Final
                 0f, 1f, SpriteEffects.None, null, 0);
 
 
+           
+
             laser1 = Content.Load<Texture2D>(@"Ship_sprites/lasers/laser1");
             laser01 = Content.Load<Texture2D>(@"Ship_sprites/lasers/laser01");
 
@@ -124,6 +131,23 @@ namespace Final
             btnOptions.setPosition(new Vector2(graphics.PreferredBackBufferWidth/2 -225, 400));
             btnShop = new mButton(Content.Load<Texture2D>("Shop_Button"), graphics.GraphicsDevice);
             btnShop.setPosition(new Vector2(graphics.PreferredBackBufferWidth - 250, 0));
+
+            //------------Shop Icons-------------------------
+            laserIcon1 = new ShopIcon(Content.Load<Texture2D>("ShopIcons\\Icon.1_42"), new Vector2(312, 163), 1, true, 50);
+            laserIcon2 = new ShopIcon(Content.Load<Texture2D>("ShopIcons\\Icon.1_43"), new Vector2(312, 219), 1, true, 150);
+            laserIcon3 = new ShopIcon(Content.Load<Texture2D>("ShopIcons\\Icon.1_44"), new Vector2(312, 275), 1, true, 300);
+            laserIcon4 = new ShopIcon(Content.Load<Texture2D>("ShopIcons\\Icon.1_45"), new Vector2(312, 332), 1, true, 500);
+            //Greyed Out Versions
+            laserIcon1G = new ShopIcon(Content.Load<Texture2D>("ShopIcons\\Icon.1_42_Grey"), new Vector2(312, 163), 1, true, 50);
+            laserIcon2G = new ShopIcon(Content.Load<Texture2D>("ShopIcons\\Icon.1_43_Grey"), new Vector2(312, 219), 1, true, 150);
+            laserIcon3G = new ShopIcon(Content.Load<Texture2D>("ShopIcons\\Icon.1_44_Grey"), new Vector2(312, 275), 1, true, 300);
+            laserIcon4G = new ShopIcon(Content.Load<Texture2D>("ShopIcons\\Icon.1_45_Grey"), new Vector2(312, 332), 1, true, 500);
+
+
+
+            
+            //----------------------------------------------
+
 
 
             cursor = Content.Load<Texture2D>("cursor");
@@ -169,6 +193,7 @@ namespace Final
 
                     b.Update(gameTime);
                     particleEngine.Update();
+                    UpdateInput();
 
 
                     break;
@@ -196,8 +221,10 @@ namespace Final
            
                     UpdateInput();
                     player.Update(gameTime, GraphicsDevice);
-                    btnShop.Update(mouse);
-                    if (btnShop.isClicked == true) currentGameState = GameState.Shop;
+                    
+                    
+                    
+                  
 
 
                      for (int i = 0; i < laserList.Count; i++)
@@ -249,11 +276,19 @@ namespace Final
                     b.Draw();
                     particleEngine.Draw(spriteBatch);
                     gui.Draw(gameTime, spriteBatch);
+                   
+                   
+                        laserIcon1G.Draw(gameTime, spriteBatch);
+                        laserIcon2G.Draw(gameTime, spriteBatch);
+                        laserIcon3G.Draw(gameTime, spriteBatch);
+                        laserIcon4G.Draw(gameTime, spriteBatch);
+                    
                     spriteBatch.Draw(cursor, cursorPos, Color.White);
 
 
                     spriteBatch.End();
 
+                  
                     break;
                 
                 
@@ -337,7 +372,12 @@ namespace Final
             bool keyPressed2 = false;
             KeyboardState keyState = Keyboard.GetState();
             GamePadState gamePadState = GamePad.GetState(PlayerIndex.One);
+            //MouseState currMouseState = Mouse.GetState();
 
+            switch (currentGameState)
+            {
+                case GameState.playing:
+            MouseState currMouseState = Mouse.GetState();
             if (keyState.IsKeyDown(Keys.Up)
               //|| keyState.IsKeyDown(Keys.W)
               || gamePadState.DPad.Up == ButtonState.Pressed
@@ -394,7 +434,13 @@ namespace Final
                 //p2.Right();
                 keyPressed2 = true;
             }
-
+            if (keyState.IsKeyDown(Keys.H) && prevKeyState != keyState)
+            {
+                currentGameState = GameState.Shop;
+                
+                
+            }
+           
 
 
 
@@ -412,7 +458,7 @@ namespace Final
             }
            
            
-            MouseState currMouseState = Mouse.GetState();
+          
 
             if (currMouseState.X != prevMouseState.X ||
                 currMouseState.Y != prevMouseState.Y)
@@ -479,10 +525,90 @@ namespace Final
 
         }
             prevMouseState = currMouseState;
+            prevKeyState = keyState;
+        
+              break;
+
+            
+                
+                case GameState.Shop:
+              MouseState currMouseState2 = Mouse.GetState();
+              if (currMouseState2.LeftButton == ButtonState.Pressed)
+              {
+               
+                  Vector2 mouseloc = new Vector2(currMouseState2.X, currMouseState2.Y);
+                  Console.WriteLine(mouseloc);
+                  
+                  if(laserIcon1G.CollisionMouse(currMouseState2.X, currMouseState2.Y))
+                  {
+                      //Console.WriteLine("HITIIIT");
+                      laserIcon1G.TextureImage = Content.Load<Texture2D>("ShopIcons\\Icon.1_42");
+                      laserIcon1G.active = true;
+                  }
+                  
+                  if ((laserIcon2G.CollisionMouse(currMouseState2.X, currMouseState2.Y)) && laserIcon1G.active == true)
+                  {
+                      //Console.WriteLine("HITIIIT");
+                      laserIcon2G.TextureImage = Content.Load<Texture2D>("ShopIcons\\Icon.1_43");
+                      laserIcon2G.active = true;
+                  }
+                  if ((laserIcon3G.CollisionMouse(currMouseState2.X, currMouseState2.Y)) && laserIcon2G.active == true)
+                  {
+                      //Console.WriteLine("HITIIIT");
+                      laserIcon3G.TextureImage = Content.Load<Texture2D>("ShopIcons\\Icon.1_44");
+                      laserIcon3G.active = true;
+                  }
+                  if ((laserIcon4G.CollisionMouse(currMouseState2.X, currMouseState2.Y)) && laserIcon3G.active == true)
+                  {
+                      //Console.WriteLine("HITIIIT");
+                      laserIcon4G.TextureImage = Content.Load<Texture2D>("ShopIcons\\Icon.1_45");
+                      laserIcon4G.active = true;
+                  }
+
+
+
+
+
+                  //currentGameState = GameState.mainMenu;
+                  if(currMouseState2 != prevMouseState)
+                  {
+                    if (currMouseState2.X >= 524 && currMouseState2.Y >= 94
+                        && currMouseState2.X <= 540 && currMouseState2.Y <= 98)
+                    {
+                        currentGameState = GameState.playing;
+                        break;
+                    }
+                  }
+
+              }
+              else
+              {
+                  //Console.WriteLine("released");
+              }
+              if (keyState.IsKeyDown(Keys.H) && (currentGameState == GameState.Shop) && prevKeyState != keyState)
+              {
+                  currentGameState = GameState.playing;
+              }
+
+              prevMouseState = currMouseState2;
+              prevKeyState = keyState;
+
+            break;
+            
+            
+            
+            }//end switch
+          
+
+        }//end updateInput
+
+        private void spawnEnemies()
+        {
+
+
+
+
         }
-
-      
-
 
 
     }//End Class
