@@ -29,7 +29,7 @@ namespace Final
 
         ParticleEngine particleEngine;
         ShopIcon laserIcon1, laserIcon2, laserIcon3, laserIcon4, laserIcon1G, laserIcon2G, laserIcon3G, laserIcon4G;
-        ShopIcon shield1, shield2, shield3, shield4;
+        ShopIcon shieldIcon1, shieldIcon2, shieldIcon3, shieldIcon4;
         enum GameState
         {
             mainMenu,
@@ -45,12 +45,21 @@ namespace Final
             Three
         }
         laserState LaserState = laserState.One;
+        enum ShieldState
+        {
+            None,
+            One,
+            Two,
+            Three,
+            Four
+        }
+        ShieldState shieldState = ShieldState.None;
 
         mButton btnPlay, btnOptions, btnShop;
         MultiBackground b;
         Sprite player, bg, gui;
         Texture2D playerTex, back, laser1;
-        Texture2D laser01;
+        Texture2D laser01, laser3, shield1, shield2, shield3, shield4;
         Texture2D cursor;
         Vector2 cursorPos;
         List<Sprite> laserList = new List<Sprite>();
@@ -119,12 +128,18 @@ namespace Final
             particleEngine = new ParticleEngine(textures, new Vector2(400, 240));
             #endregion
 
-            #region lasers&GUI
+            #region lasers,GUI&Shields
             gui = new Sprite(Content.Load<Texture2D>("shopGUI"), new Vector2(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2), Vector2.Zero, true,
                 0f, 1f, SpriteEffects.None, null, 0);
 
             laser1 = Content.Load<Texture2D>(@"Ship_sprites/lasers/laser1");
             laser01 = Content.Load<Texture2D>(@"Ship_sprites/lasers/laser01");
+            laser3 = Content.Load<Texture2D>(@"Ship_sprites/lasers/laser3");
+
+            shield1 = Content.Load<Texture2D>(@"Ship_sprites/shields/shield1");
+            shield2 = Content.Load<Texture2D>(@"Ship_sprites/shields/shield2");
+            shield3 = Content.Load<Texture2D>(@"Ship_sprites/shields/shield3");
+            shield4 = Content.Load<Texture2D>(@"Ship_sprites/shields/shield4");
             #endregion
 
             #region buttons
@@ -143,10 +158,10 @@ namespace Final
             laserIcon3 = new ShopIcon(Content.Load<Texture2D>("ShopIcons\\Icon.1_44"), new Vector2(312, 275), 1, true, 300);
             laserIcon4 = new ShopIcon(Content.Load<Texture2D>("ShopIcons\\Icon.1_45"), new Vector2(312, 332), 1, true, 500);
 
-            shield1 = new ShopIcon(Content.Load<Texture2D>("ShopIcons\\Icon.1_42"), new Vector2(372, 163), 1, true, 50);
-            shield2 = new ShopIcon(Content.Load<Texture2D>("ShopIcons\\Icon.1_42"), new Vector2(372, 219), 1, true, 50);
-            shield3 = new ShopIcon(Content.Load<Texture2D>("ShopIcons\\Icon.1_42"), new Vector2(372, 275), 1, true, 50);
-            shield4 = new ShopIcon(Content.Load<Texture2D>("ShopIcons\\Icon.1_42"), new Vector2(372, 332), 1, true, 50);
+            shieldIcon1 = new ShopIcon(Content.Load<Texture2D>("ShopIcons\\Icon.1_42"), new Vector2(372, 163), 1, true, 50);
+            shieldIcon2 = new ShopIcon(Content.Load<Texture2D>("ShopIcons\\Icon.1_42"), new Vector2(372, 219), 1, true, 50);
+            shieldIcon3 = new ShopIcon(Content.Load<Texture2D>("ShopIcons\\Icon.1_42"), new Vector2(372, 275), 1, true, 50);
+            shieldIcon4 = new ShopIcon(Content.Load<Texture2D>("ShopIcons\\Icon.1_42"), new Vector2(372, 332), 1, true, 50);
             //----------Greyed Out Versions------------------
             laserIcon1G = new ShopIcon(Content.Load<Texture2D>("ShopIcons\\Icon.1_42_Grey"), new Vector2(312, 163), 1, true, 50);
             laserIcon2G = new ShopIcon(Content.Load<Texture2D>("ShopIcons\\Icon.1_43_Grey"), new Vector2(312, 219), 1, true, 150);
@@ -376,7 +391,27 @@ namespace Final
                                lasers.Draw(gameTime, spriteBatch);
 
                                break;
+                           case laserState.Three:
+                               lasers.Draw(gameTime, spriteBatch);
+                               break;
                     }
+
+                       switch (shieldState)
+                       {
+                           case ShieldState.One:
+
+                               break;
+                           case ShieldState.Two:
+
+                               break;
+                           case ShieldState.Three:
+
+                               break;
+                           case ShieldState.Four:
+
+                               break;
+
+                       }
 
                     }
                     btnShop.Draw(spriteBatch);
@@ -544,6 +579,14 @@ namespace Final
                             laserShot2.Rotation = angle + (float)45.5;
 
                             laserList.Add(laserShot2);
+
+                            break;
+                        case laserState.Three:
+                            Sprite laserShot3 = new Sprite(laser3, new Vector2(player.Position.X - laser01.Bounds.X / 2, player.Position.Y - laser01.Bounds.Y / 2),
+                                        new Vector2((float)Math.Cos((angle)), (float)Math.Sin((angle))) * 600f, true, 0, 0.2f, SpriteEffects.None, null, 0);
+                            laserShot3.Rotation = angle + (float)45.5;
+
+                            laserList.Add(laserShot3);
 
                             break;
                     }
