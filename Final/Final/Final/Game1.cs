@@ -62,14 +62,20 @@ namespace Final
         Texture2D laser01, laser3, shield1, shield2, shield3, shield4;
         Texture2D cursor;
         Vector2 cursorPos;
+        Sprite playerShield;
         List<Sprite> laserList = new List<Sprite>();
+        List<Sprite> enemyLaserList = new List<Sprite>();
         //List<SpriteFromSheet> enemyList = new List<SpriteFromSheet>();
         SpriteFromSheet enemy1;
         SpriteFromSheet enemy2;
 
         const float FIRE_DELAY = 150f;
         float fireDelay = FIRE_DELAY;
-        float angle;
+        const float ENEMY_FIRE_DELAY = 300f;
+        float enemyFireDelay = ENEMY_FIRE_DELAY;
+
+
+        float angle, angle2;
         #endregion
         public Game1()
         {
@@ -140,6 +146,7 @@ namespace Final
             shield2 = Content.Load<Texture2D>(@"Ship_sprites/shields/shield2");
             shield3 = Content.Load<Texture2D>(@"Ship_sprites/shields/shield3");
             shield4 = Content.Load<Texture2D>(@"Ship_sprites/shields/shield4");
+            playerShield = new Sprite((shield1), player.Position, Vector2.Zero, true, 0, 1f, SpriteEffects.None, null, 0);
             #endregion
 
             #region buttons
@@ -201,6 +208,7 @@ namespace Final
             cursorPos = new Vector2(mouse.X -25, mouse.Y -25);
             float elapsed = (float)gameTime.ElapsedGameTime.TotalMilliseconds;
             fireDelay -= elapsed;
+            enemyFireDelay -= elapsed;
 
 
             switch (currentGameState)
@@ -245,6 +253,8 @@ namespace Final
                     enemy2.Update(gameTime, GraphicsDevice);
                     player.Update(gameTime, GraphicsDevice);
                     enemy1.Update(gameTime);
+                    playerShield.Update(gameTime);
+                    playerShield.Position = player.Position;
                     UpdateInput();
                      for (int i = 0; i < laserList.Count; i++)
                       {
@@ -253,13 +263,25 @@ namespace Final
 
                         if (laserList[i].Position.Y < 0f || laserList[i].Position.X < 0f || laserList[i].Position.X > graphics.GraphicsDevice.Viewport.Width
                         || laserList[i].Position.Y > graphics.GraphicsDevice.Viewport.Height)
-                         {
+                        {
                             laserList.RemoveAt(i);
 
-                }
+                        }
 
 
-            }
+                    }
+
+                     for (int i = 0; i < enemyLaserList.Count; i++)
+                     {
+                         enemyLaserList[i].Update(gameTime);
+
+                         if (enemyLaserList[i].IsOffScreen(GraphicsDevice))
+                         {
+                             enemyLaserList.RemoveAt(i);
+                         }
+
+
+                     }
 
                     break;
                 #endregion
@@ -395,25 +417,33 @@ namespace Final
                                lasers.Draw(gameTime, spriteBatch);
                                break;
                     }
+                       
+                      
 
-                       switch (shieldState)
+                    }
+
+                    foreach (Sprite laser in enemyLaserList)
+                    {
+                        laser.Draw(gameTime, spriteBatch);
+
+                    }
+                     switch (shieldState)
                        {
                            case ShieldState.One:
-
+                               playerShield.TextureImage = shield1;
                                break;
                            case ShieldState.Two:
-
+                               playerShield.TextureImage = shield2;
                                break;
                            case ShieldState.Three:
-
+                               playerShield.TextureImage = shield3;
                                break;
                            case ShieldState.Four:
-
+                               playerShield.TextureImage = shield4;
                                break;
 
                        }
-
-                    }
+                       playerShield.Draw(gameTime, spriteBatch);
                     btnShop.Draw(spriteBatch);
                     spriteBatch.End();
                     break;
@@ -537,8 +567,23 @@ namespace Final
                 Vector2 direction = (player.Position) - mouseLoc;
                 angle = (float)(Math.Atan2(-direction.Y, -direction.X));
                 player.Rotation = angle + (float)45.5;
-                
-            }
+            } 
+                //enemies rotation
+                Vector2 direction2 = (player.Position) - (enemy1.Position);
+                angle2 = (float)(Math.Atan2(-direction2.Y, -direction2.X));
+                enemy1.Rotation = angle2 + (float)45.5;
+
+                //enemies moving towards player
+                direction2.Normalize();
+                enemy1.Velocity = new Vector2(1, 1);
+               
+                if (Vector2.Distance(enemy1.Position, player.Position) < 150)
+                {
+                    enemy1.Velocity *= -enemy1.Velocity;
+                    startShooting();
+
+                }
+               enemy1.Position += enemy1.Velocity * direction2;
 
              if (keyState.IsKeyDown(Keys.Q))
              {
@@ -616,6 +661,7 @@ namespace Final
                       laserIcon1G.TextureImage = Content.Load<Texture2D>("ShopIcons\\Icon.1_42");
                       laserIcon1G.active = true;
                       LaserState = laserState.Two;
+                      shieldState = ShieldState.One;
                   }
                   
                   if ((laserIcon2G.CollisionMouse(currMouseState2.X, currMouseState2.Y)) && laserIcon1G.active == true)
@@ -624,18 +670,21 @@ namespace Final
                       laserIcon2G.TextureImage = Content.Load<Texture2D>("ShopIcons\\Icon.1_43");
                       laserIcon2G.active = true;
                       LaserState = laserState.Three;
+                      shieldState = ShieldState.Two;
                   }
                   if ((laserIcon3G.CollisionMouse(currMouseState2.X, currMouseState2.Y)) && laserIcon2G.active == true)
                   {
                       //Console.WriteLine("HITIIIT");
                       laserIcon3G.TextureImage = Content.Load<Texture2D>("ShopIcons\\Icon.1_44");
                       laserIcon3G.active = true;
+                      shieldState = ShieldState.Three;
                   }
                   if ((laserIcon4G.CollisionMouse(currMouseState2.X, currMouseState2.Y)) && laserIcon3G.active == true)
                   {
                       //Console.WriteLine("HITIIIT");
                       laserIcon4G.TextureImage = Content.Load<Texture2D>("ShopIcons\\Icon.1_45");
                       laserIcon4G.active = true;
+                      shieldState = ShieldState.Four;
                   }
 
 
@@ -704,7 +753,19 @@ namespace Final
 
 
         }
+        private void startShooting()
+        {
+            if (enemyFireDelay <= 0f)
+            {
 
+                Sprite enemyLaser = new Sprite(Content.Load<Texture2D>(@"Ship_Sprites/Lasers/laser3"), new Vector2(enemy1.Position.X - laser3.Bounds.X / 2,
+                    enemy1.Position.Y - laser3.Bounds.Y / 2), new Vector2((float)Math.Cos((-angle2)), (float)Math.Sin((angle2))) * -600f,
+                    true, 0, 0.2f, SpriteEffects.None, null, 0);
+
+                enemyLaserList.Add(enemyLaser);
+                enemyFireDelay = ENEMY_FIRE_DELAY;
+            } 
+        }
 
         private void drawError(GameTime gameTime)
         {
